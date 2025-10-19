@@ -1,8 +1,8 @@
-(function ($) {
-  $.fn.mauGallery = function (options) {
+(function($) {
+  $.fn.mauGallery = function(options) {
     var options = $.extend($.fn.mauGallery.defaults, options);
     var tagsCollection = [];
-    return this.each(function () {
+    return this.each(function() {
       $.fn.mauGallery.methods.createRowWrapper($(this));
       if (options.lightBox) {
         $.fn.mauGallery.methods.createLightBox(
@@ -15,7 +15,7 @@
 
       $(this)
         .children(".gallery-item")
-        .each(function (index) {
+        .each(function(index) {
           $.fn.mauGallery.methods.responsiveImageItem($(this));
           $.fn.mauGallery.methods.moveItemInRowWrapper($(this));
           $.fn.mauGallery.methods.wrapItemInColumn($(this), options.columns);
@@ -48,8 +48,8 @@
     tagsPosition: "bottom",
     navigation: true
   };
-  $.fn.mauGallery.listeners = function (options) {
-    $(".gallery-item").on("click", function () {
+  $.fn.mauGallery.listeners = function(options) {
+    $(".gallery-item").on("click", function() {
       if (options.lightBox && $(this).prop("tagName") === "IMG") {
         $.fn.mauGallery.methods.openLightBox($(this), options.lightboxId);
       } else {
@@ -119,101 +119,100 @@
         .attr("src", element.attr("src"));
       $(`#${lightboxId}`).modal("toggle");
     },
-    prevImage(lightboxId) {
+    prevImage() {
       let activeImage = null;
-
-      // Find which gallery image matches the one currently shown in the lightbox
-      $("img.gallery-item").each(function () {
+      $("img.gallery-item").each(function() {
         if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
           activeImage = $(this);
         }
       });
-
-      // Get the current active tag (filter)
       let activeTag = $(".tags-bar span.active-tag").data("images-toggle");
       let imagesCollection = [];
-
-      // Build a list of all images visible under the current tag
       if (activeTag === "all") {
-        $(".item-column img").each(function () {
-          imagesCollection.push($(this));
+        $(".item-column").each(function() {
+          if ($(this).children("img").length) {
+            imagesCollection.push($(this).children("img"));
+          }
         });
       } else {
-        $(".item-column img").each(function () {
-          if ($(this).data("gallery-tag") === activeTag) {
-            imagesCollection.push($(this));
+        $(".item-column").each(function() {
+          if (
+            $(this)
+              .children("img")
+              .data("gallery-tag") === activeTag
+          ) {
+            imagesCollection.push($(this).children("img"));
           }
         });
       }
+      let index = 0,
+        next = null;
 
-      // Find the index of the current image in that list
-      let index = imagesCollection.findIndex(
-        (img) => img.attr("src") === activeImage.attr("src")
-      );
-
-      // Move one image backward (wrap around if needed)
-      let prevIndex =
-        index - 1 < 0 ? imagesCollection.length - 1 : index - 1;
-
-      // Update the lightbox image source
-      $(".lightboxImage").attr("src", imagesCollection[prevIndex].attr("src"));
+      $(imagesCollection).each(function(i) {
+        if ($(activeImage).attr("src") === $(this).attr("src")) {
+          index = i ;
+        }
+      });
+      next =
+        imagesCollection[index] ||
+        imagesCollection[imagesCollection.length - 1];
+      $(".lightboxImage").attr("src", $(next).attr("src"));
     },
-
-    nextImage(lightboxId) {
+    nextImage() {
       let activeImage = null;
-
-      // Find which gallery image matches the one currently shown in the lightbox
-      $("img.gallery-item").each(function () {
+      $("img.gallery-item").each(function() {
         if ($(this).attr("src") === $(".lightboxImage").attr("src")) {
           activeImage = $(this);
         }
       });
-
-      // Get the current active tag (filter)
       let activeTag = $(".tags-bar span.active-tag").data("images-toggle");
       let imagesCollection = [];
-
-      // Build a list of all images visible under the current tag
       if (activeTag === "all") {
-        $(".item-column img").each(function () {
-          imagesCollection.push($(this));
+        $(".item-column").each(function() {
+          if ($(this).children("img").length) {
+            imagesCollection.push($(this).children("img"));
+          }
         });
       } else {
-        $(".item-column img").each(function () {
-          if ($(this).data("gallery-tag") === activeTag) {
-            imagesCollection.push($(this));
+        $(".item-column").each(function() {
+          if (
+            $(this)
+              .children("img")
+              .data("gallery-tag") === activeTag
+          ) {
+            imagesCollection.push($(this).children("img"));
           }
         });
       }
+      let index = 0,
+        next = null;
 
-      // Find the index of the current image in that list
-      let index = imagesCollection.findIndex(
-        (img) => img.attr("src") === activeImage.attr("src")
-      );
-
-      // Move one image forward (wrap around if needed)
-      let nextIndex =
-        index + 1 >= imagesCollection.length ? 0 : index + 1;
-
-      // Update the lightbox image source
-      $(".lightboxImage").attr("src", imagesCollection[nextIndex].attr("src"));
+      $(imagesCollection).each(function(i) {
+        if ($(activeImage).attr("src") === $(this).attr("src")) {
+          index = i;
+        }
+      });
+      next = imagesCollection[index] || imagesCollection[0];
+      $(".lightboxImage").attr("src", $(next).attr("src"));
     },
-
     createLightBox(gallery, lightboxId, navigation) {
-      gallery.append(`<div class="modal fade" id="${lightboxId ? lightboxId : "galleryLightbox"
-        }" tabindex="-1" role="dialog" aria-hidden="true">
+      gallery.append(`<div class="modal fade" id="${
+        lightboxId ? lightboxId : "galleryLightbox"
+      }" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-body">
-                            ${navigation
-          ? '<div class="mg-prev" style="cursor:pointer;position:absolute;top:50%;left:-15px;background:white;"><</div>'
-          : '<span style="display:none;" />'
-        }
+                            ${
+                              navigation
+                                ? '<div class="mg-prev" style="cursor:pointer;position:absolute;top:50%;left:-15px;background:white;"><</div>'
+                                : '<span style="display:none;" />'
+                            }
                             <img class="lightboxImage img-fluid" alt="Contenu de l'image affichée dans la modale au clique"/>
-                            ${navigation
-          ? '<div class="mg-next" style="cursor:pointer;position:absolute;top:50%;right:-15px;background:white;}">></div>'
-          : '<span style="display:none;" />'
-        }
+                            ${
+                              navigation
+                                ? '<div class="mg-next" style="cursor:pointer;position:absolute;top:50%;right:-15px;background:white;}">></div>'
+                                : '<span style="display:none;" />'
+                            }
                         </div>
                     </div>
                 </div>
@@ -222,7 +221,7 @@
     showItemTags(gallery, position, tags) {
       var tagItems =
         '<li class="nav-item"><span class="nav-link active active-tag"  data-images-toggle="all">Tous</span></li>';
-      $.each(tags, function (index, value) {
+      $.each(tags, function(index, value) {
         tagItems += `<li class="nav-item active">
                 <span class="nav-link"  data-images-toggle="${value}">${value}</span></li>`;
       });
@@ -245,7 +244,7 @@
 
       var tag = $(this).data("images-toggle");
 
-      $(".gallery-item").each(function () {
+      $(".gallery-item").each(function() {
         $(this)
           .parents(".item-column")
           .hide();
